@@ -3,7 +3,7 @@ import socket
 import ssl #module for secure communication with https
 from urllib.parse import urlparse
 
-def web_monitor(url):
+def web_monitor(url): #Consolidating code into a function so that it is reusable with referenced and redirected URLs
 
     try:
         #Parsing
@@ -61,7 +61,7 @@ def web_monitor(url):
                     break
             print(f'Response from {url}:\n{response.decode("utf-8")}\n')
         except Exception as e:
-            print(f'Error receiving response from {url}:\n{e}\n')
+            print(f'Error receiving response from {url}:\n{e}\n')#Just in case there is an error receiving data from the url
         finally:
             sock.close()
         
@@ -81,6 +81,6 @@ except FileNotFoundError:
     print('File '+ urls_file +' not found.')
     sys.exit()
 
-for url in urls:
-    url = url.strip()
-    web_monitor(url)
+for url in urls: #for loop
+    url = url.strip() #remove whitespace
+    web_monitor(url) #main function call
