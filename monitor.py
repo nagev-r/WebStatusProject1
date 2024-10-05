@@ -1,5 +1,6 @@
 import sys
 import socket
+import ssl #module for secure communication with https
 from urllib.parse import urlparse
 
 # get urls_file name from command line
@@ -49,6 +50,14 @@ for url in urls:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(5)
         sock.connect((host, port))
+
+        #If URL contains HTTPS, wrap socket with SSL
+        if parsed_url.scheme == 'https':
+            #SSL context creation
+            context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT) #Protocol
+            context.load_default_certs() #Certs
+            sock = context.wrap_socket(sock, server_hostname=host) #Wrap sock for HTTPS
+
     except Exception as e:
         print(f'Network Error while connecting to {url}:\n{e}\n')
         continue #Skip to next url if exception occurs
@@ -67,5 +76,5 @@ for url in urls:
             response += data
             if not data:
                 break
-        print(f'Response from {url}:\n{response.decode('utf-8')}\n')
+        print(f'Response from {url}:\n{response.decode("utf-8")}\n')
         sock.close()
