@@ -63,26 +63,18 @@ def web_monitor(url): #Consolidating code into a function so that it is reusable
             response_str = response.decode('utf-8')
 
             headers, body = response_str.split('\r\n', 1)
-            status_line = headers.split('r\n')[0]
-            status_code = int(status_line.split(' ')[1])
-            status_message = ' '.join(status_line.split(' ')[2:])  # The status message
+            #status_line = headers.split('r\n')[0]
+            status_code = int(headers.split(' ')[1])
+            status_message = ' '.join(headers.split(' ')[2:])  # The status message
+
+            print(f'CHECKING: {headers}')
             
             print(f'URL: {url}\nStatus: {status_code} {status_message}\n')
 
-            # added code
-            if (status_code == 301 or status_code == 302):
-                header_lines = headers.split('\r\n')
-                for line in header_lines:
-                    if line.startswith('Location:'):
-                        location_url = line.split(':', 1)[1].strip()  # Ensure ':' is properly handled
-                        
-                        # Handle relative URLs using urljoin
-                        #if not location_url.startswith('http'):
-                         #   location_url = urljoin(url, location_url)
-
-                        print(f'Redirected URL: {location_url}')  # Debugging output
-                        web_monitor(location_url)  # Recursive call to follow redirect
-                    break
+            # added code portion for redirection
+            if status_code == 301:
+                print("This is a 301 redirect, parsing for reference URL...\n")
+                
             
         except Exception as e:
             print(f'Error receiving response from {url}:\n{e}\n')#Just in case there is an error receiving data from the url
