@@ -40,32 +40,32 @@ for url in urls:
         #print(f'{path}\n')
         #print(f'{port}\n')
     except Exception as e:
-        print(f'Error parsing URL {url}: {e}')
+        print(f'Error parsing URL {url}:\n{e}\n')
+        continue
 
-"""
-sock = None
-# create client socket, connect to server
-try:
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.settimeout(5)
-    sock.connect((host, port))
-except Exception as e:
-    print(f'Network Error:\n {e}')
+    # create client socket, connect to server
+    sock = None
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(5)
+        sock.connect((host, port))
+    except Exception as e:
+        print(f'Network Error while connecting to {url}:\n{e}\n')
+        continue #Skip to next url if exception occurs
 
-if sock:
-    # send http request
-    request = f'GET {path} HTTP/1.0\r\n'
-    request += f'Host: {host}\r\n'
-    request += '\r\n'
-    sock.send(bytes(request, 'utf-8'))
+    if sock: #If an error occurs and no sock variable is created, the program will move onto the next url
+        # send http request
+        request = f'GET {path} HTTP/1.0\r\n'
+        request += f'Host: {host}\r\n'
+        request += '\r\n'
+        sock.send(bytes(request, 'utf-8'))
 
-    # receive http response
-    response = b''
-    while True:
-        data = sock.recv(4096)
-        response += data
-        if not data:
-            break
-    print(response.decode('utf-8'))
-    sock.close()
-"""
+        # receive http response
+        response = b''
+        while True:
+            data = sock.recv(4096)
+            response += data
+            if not data:
+                break
+        print(f'Response from {url}:\n{response.decode('utf-8')}\n')
+        sock.close()
