@@ -67,5 +67,17 @@ for url in urls:
             response += data
             if not data:
                 break
-        print(f'Response from {url}:\n{response.decode('utf-8')}\n')
+        # print(f'Response from {url}:\n{response.decode("utf-8")}\n')
+        response_str = response.decode('utf-8')
+
+        headers, body = response_str.split('\r\n', 1)
+        status_line = headers.split('r\n')[0]
+        status_code = status_line.split(' ')[1]
+        status_message = ' '.join(status_line.split(' ')[2:])  # The status message
+        
+        print(f'URL: {url}\nStatus: {status_code} {status_message}\n')
+
+        if status_code == 301:
+            print("This is a 301 redirect, parsing for reference URL...")
+
         sock.close()
