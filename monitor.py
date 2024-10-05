@@ -40,7 +40,8 @@ for url in urls:
         #print(f'{path}\n')
         #print(f'{port}\n')
     except Exception as e:
-        print(f'Error parsing URL {url}: {e}')
+        print(f'Error parsing URL {url}:\n{e}\n')
+        continue
 
     # create client socket, connect to server
     sock = None
@@ -49,9 +50,10 @@ for url in urls:
         sock.settimeout(5)
         sock.connect((host, port))
     except Exception as e:
-        print(f'Network Error:\n {e}')
+        print(f'Network Error while connecting to {url}:\n{e}\n')
+        continue #Skip to next url if exception occurs
 
-    if sock:
+    if sock: #If an error occurs and no sock variable is created, the program will move onto the next url
         # send http request
         request = f'GET {path} HTTP/1.0\r\n'
         request += f'Host: {host}\r\n'
@@ -65,5 +67,5 @@ for url in urls:
             response += data
             if not data:
                 break
-        print(response.decode('utf-8'))
+        print(f'Response from {url}:\n{response.decode('utf-8')}\n')
         sock.close()
