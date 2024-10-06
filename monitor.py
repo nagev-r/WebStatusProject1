@@ -81,26 +81,7 @@ def web_monitor(url): #Consolidating code into a function so that it is reusable
                     print('Redirected', end=' ')
                     web_monitor(redirect_url)
             print('\n', end='')
-
-            #print(f'Response from {url}:\n{response.decode("utf-8")}\n')
             
-            # print(f'Response from {url}:\n{response.decode("utf-8")}\n')
-            response_str = response.decode('utf-8')
-
-            headers, body = response_str.split('\r\n', 1)
-            #status_line = headers.split('r\n')[0]
-            status_code = int(headers.split(' ')[1])
-            status_message = ' '.join(headers.split(' ')[2:])  # The status message
-
-            print(f'CHECKING: {headers}')
-            
-            print(f'URL: {url}\nStatus: {status_code} {status_message}\n')
-
-            # added code portion for redirection
-            if status_code == 301:
-                print("This is a 301 redirect, parsing for reference URL...\n")
-                    
-
         except Exception as e:
             print(f'Error receiving response from {url}:\n{e}\n')#Just in case there is an error receiving data from the url
         finally:
