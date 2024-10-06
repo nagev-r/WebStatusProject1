@@ -1,7 +1,7 @@
 import sys
 import socket
 import ssl #module for secure communication with https
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
 
 def web_monitor(url): #Consolidating code into a function so that it is reusable with referenced and redirected URLs
 
@@ -22,6 +22,8 @@ def web_monitor(url): #Consolidating code into a function so that it is reusable
         #print(f'{host}\n')
         #print(f'{path}\n')
         #print(f'{port}\n')
+        print(f'URL: {url}')
+
     except Exception as e:
         print(f'Error parsing URL {url}:\n{e}\n')
         return #exit function after exception
@@ -41,7 +43,7 @@ def web_monitor(url): #Consolidating code into a function so that it is reusable
             sock = context.wrap_socket(sock, server_hostname=host) #Wrap sock for HTTPS
 
     except Exception as e:
-        print(f'Network Error while connecting to {url}:\n{e}\n')
+        print(f'Network Error\n({e})\n')
         return #Skip to next url if exception occurs
 
     if sock: #If an error occurs and no sock variable is created, the program will move onto the next url
@@ -60,7 +62,7 @@ def web_monitor(url): #Consolidating code into a function so that it is reusable
                 if not data:
                     break
             #Decode response
-            decoded_response = response.decode('utf-8')
+            decoded_response = response.decode('utf-8', errors='replace')
             #Header[0] Body[1]
             headers, body = decoded_response.split('\r\n\r\n', 1) #Split decoded string into a list of strings(size 2). Only one split where the first \n\n is found. 
             status_line = headers.splitlines()[0] #Split header string into list of strings, [0] returning the first index in the list
@@ -71,17 +73,24 @@ def web_monitor(url): #Consolidating code into a function so that it is reusable
                 key, value = line.split(': ', 1) #Split each line into 2 strings wherever there is a ': '. Store the 1st portion as a key and the 2nd as a value
                 headers_dict[key] = value #Uses each header as a key and relates it to the value it represents.
             
-            print(f'URL: {url}')
             print(f'Status: {status}')
-
+#redirect stuff
             if status.startswith('3'): #3XX
                 redirect_url = headers_dict.get('Location')
                 if redirect_url:
                     print('Redirected', end=' ')
                     web_monitor(redirect_url)
+#reference stuff
+            body_list = body.splitlines()
+            for body_line in body_list:
+                if body_line.startswith('<img'):
+                    x, img_src, z = body_line.split('"', 2)
+                    img_url = urljoin(url,img_src)
+                    print('Referenced', end=' ')                    
+                    web_monitor(img_url)                
+
             print('\n', end='')
 
-            #print(f'Response from {url}:\n{response.decode("utf-8")}\n')
         except Exception as e:
             print(f'Error receiving response from {url}:\n{e}\n')#Just in case there is an error receiving data from the url
         finally:
