@@ -61,6 +61,7 @@ def web_monitor(url): #Consolidating code into a function so that it is reusable
                 response += data
                 if not data:
                     break
+
             #Decode response
             decoded_response = response.decode('utf-8', errors='replace')
             #Header[0] Body[1]
