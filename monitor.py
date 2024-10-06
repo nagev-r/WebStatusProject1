@@ -59,6 +59,31 @@ def web_monitor(url): #Consolidating code into a function so that it is reusable
                 response += data
                 if not data:
                     break
+
+            #Decode response
+            decoded_response = response.decode('utf-8')
+            #Header[0] Body[1]
+            headers, body = decoded_response.split('\r\n\r\n', 1) #Split decoded string into a list of strings(size 2). Only one split where the first \n\n is found. 
+            status_line = headers.splitlines()[0] #Split header string into list of strings, [0] returning the first index in the list
+            garbage, status = status_line.split(' ', 1)
+            headers_dict = {} #An empty dictionary
+            #Fill dictionary for loop
+            for line in headers.splitlines()[1:]:
+                key, value = line.split(': ', 1) #Split each line into 2 strings wherever there is a ': '. Store the 1st portion as a key and the 2nd as a value
+                headers_dict[key] = value #Uses each header as a key and relates it to the value it represents.
+            
+            print(f'URL: {url}')
+            print(f'Status: {status}')
+
+            if status.startswith('3'): #3XX
+                redirect_url = headers_dict.get('Location')
+                if redirect_url:
+                    print('Redirected', end=' ')
+                    web_monitor(redirect_url)
+            print('\n', end='')
+
+            #print(f'Response from {url}:\n{response.decode("utf-8")}\n')
+            
             # print(f'Response from {url}:\n{response.decode("utf-8")}\n')
             response_str = response.decode('utf-8')
 
@@ -74,8 +99,8 @@ def web_monitor(url): #Consolidating code into a function so that it is reusable
             # added code portion for redirection
             if status_code == 301:
                 print("This is a 301 redirect, parsing for reference URL...\n")
-                
-            
+                    
+
         except Exception as e:
             print(f'Error receiving response from {url}:\n{e}\n')#Just in case there is an error receiving data from the url
         finally:
